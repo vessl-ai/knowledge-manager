@@ -1,11 +1,11 @@
 
 
-from jobs.ingester.src.config import IngestOptionsConfig
+from config import IngestOptionsConfig
 
 
 def get_chunking_function(config: IngestOptionsConfig):
-    if config.chunking_function == "ragflow":
-        return NaiveSplittingCHunkginFunction()
+    if config.chunking.method == "ragflow":
+        return NaiveSplittingChunkingFunction()
     else:
         return BaseChunkingFunction()
 
@@ -18,7 +18,7 @@ class BaseChunkingFunction():
         pass
 
 
-class NaiveSplittingCHunkginFunction(BaseChunkingFunction):
+class NaiveSplittingChunkingFunction(BaseChunkingFunction):
     def __init__(self):
         pass
 

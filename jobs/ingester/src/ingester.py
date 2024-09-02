@@ -1,20 +1,20 @@
-from config import IngesterConfig, get_config
+from parser import get_parser
 
-from jobs.ingester.src.api_client import get_vessl_api_client
-from jobs.ingester.src.chunking import get_chunking_function
-from jobs.ingester.src.embedding_model import get_embedding_function
-from jobs.ingester.src.parser import get_parser
-from jobs.ingester.src.vectordb import get_vector_db
+from api_client import get_vessl_api_client
+from chunking import get_chunking_function
+from config import IngesterConfig
+from embedding_model import get_embedding_function
+from vectordb import get_vector_db
 
 
 class IngestRunner():
 
     def __init__(self, config: IngesterConfig) -> None:
         self.api_client = get_vessl_api_client()
-        self.chunking_function = get_chunking_function(config['ingest'])
-        self.parser = get_parser(config['ingest'])
-        self.embedding_function = get_embedding_function(config['embedding'])
-        self.vector_db = get_vector_db(config['vector_db'])
+        self.chunking_function = get_chunking_function(config.ingest_options)
+        self.parser = get_parser(config.ingest_options)
+        self.embedding_function = get_embedding_function(config.embedding_model)
+        self.vector_db = get_vector_db(config.vector_db)
 
     def run(self):
         # Todo; implement

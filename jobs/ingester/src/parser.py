@@ -1,6 +1,6 @@
 
 
-from jobs.ingester.src.config import IngestOptionsConfig
+from config import IngestOptionsConfig
 
 
 def get_parser(config: IngestOptionsConfig):
