@@ -1,3 +1,4 @@
+import os
 from parser import get_parser
 
 from api_client import get_vessl_api_client
@@ -10,6 +11,7 @@ from vectordb import get_vector_db
 class IngestRunner():
 
     def __init__(self, config: IngesterConfig) -> None:
+        self.documents = config.documents
         self.api_client = get_vessl_api_client()
         self.chunking_function = get_chunking_function(config.ingest_options)
         self.parser = get_parser(config.ingest_options)
@@ -21,7 +23,7 @@ class IngestRunner():
         self.notify_start()
 
         try:
-            documents = self.load_documents()
+            documents = self.load_documents(self.documents)
 
             jobs = []
             for document in documents:
@@ -41,9 +43,11 @@ class IngestRunner():
         except:
             self.notify_error()
 
-    def load_documents(self):
-        # load from filesystem and validate with vessl api
-        pass
+    def load_documents(self, documents):
+        output = []
+        for document in documents:
+            output.append(os.path.join(os.path.curdir, f"source-documents/{document.filename}"))
+        return output
 
     def notify_start(self):
         pass
@@ -54,19 +58,21 @@ class IngestRunner():
     def notify_error(self):
         pass
 
-    def spawn_document_process_job(self):
-        return IngestDocumentJob();
+    def spawn_document_process_job(self, document):
+        return IngestDocumentJob(self, document)
 
 
 class IngestDocumentJob():
-    def __init__(self) -> None:
-        pass
+    def __init__(self, runner: IngestRunner, document: str) -> None:
+        self.runner = runner
+        self.document = document
 
     def _load_document(self):
         pass
 
     def _parse_document(self):
-        pass
+        print(self.runner.parser, self.document)
+        return self.runner.parser.parse(self.document)
 
     def _chunk_document(self):
 
@@ -80,7 +86,7 @@ class IngestDocumentJob():
 
     def run(self):
         self._load_document()
-        self._parse_document()
+        parsed = self._parse_document()
         self._chunk_document()
         self._embed_document()
         self._push_vectordb()

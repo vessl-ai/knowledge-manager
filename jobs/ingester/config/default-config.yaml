@@ -16,7 +16,7 @@ knowledge:
   organization_name: "organization-name"
 ingest_options:
   parser:
-    type: "ragflow" # ragflow | dify | ?
+    type: "openparse" # openparse | dify | ?
   chunking:
     method: "naive_splitting" # fixed-size | naive_splitting | ?
     fixed_size:

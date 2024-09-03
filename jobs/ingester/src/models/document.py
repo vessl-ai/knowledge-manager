@@ -4,7 +4,7 @@ class Document:
         self.id = id
         self.filename = filename
         self.content = content
-        self.created_at = created_t
+        self.created_at = created_at
         self.updated_at = updated_at
 
     def __repr__(self):
