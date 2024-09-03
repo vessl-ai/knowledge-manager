@@ -1,10 +1,12 @@
 import os
-from parser import get_parser
 from typing import List
+
+from models.chunk import Chunk
+from parser import get_parser
 
 from api_client import get_vessl_api_client
 from chunking import get_chunking_function
-from config import IngesterConfig
+from config import IngesterConfig, DocumentConfig
 from embedding_model import get_embedding_function
 from vectordb import get_vector_db
 
@@ -17,18 +19,18 @@ class IngestRunner():
         self.chunking_function = get_chunking_function(config.ingest_options)
         self.parser = get_parser(config.ingest_options)
         self.embedding_function = get_embedding_function(config.embedding_model)
-        self.vector_db = get_vector_db(config.vector_db)
+        self.vector_db = get_vector_db(config.vector_db, self.embedding_function)
 
     def run(self):
         # Todo; implement
         self.notify_start()
 
         try:
-            documents = self.load_documents(self.documents)
+
 
             jobs = []
-            for document in documents:
-                job = self.spawn_document_process_job(document)
+            for document_config in self.documents:
+                job = self.spawn_document_process_job(document_config)
                 jobs.append(job)
 
             for job in jobs:
@@ -36,7 +38,7 @@ class IngestRunner():
                     job.run()
                     job.notify_success()
                 except Exception as e:
-                    job.notify_error()
+                    job.notify_error(e)
 
             print("All jobs completed")
 
@@ -44,11 +46,8 @@ class IngestRunner():
         except:
             self.notify_error()
 
-    def load_documents(self, documents):
-        output = []
-        for document in documents:
-            output.append(os.path.join(os.path.curdir, f"source-documents/{document.filename}"))
-        return output
+    def load_document(self, document: DocumentConfig):
+        return os.path.join(os.path.curdir, f"source-documents/{document.filename}")
 
     def notify_start(self):
         pass
@@ -59,46 +58,38 @@ class IngestRunner():
     def notify_error(self):
         pass
 
-    def spawn_document_process_job(self, document):
-        return IngestDocumentJob(self, document)
+    def spawn_document_process_job(self, document_config):
+        return IngestDocumentJob(self, document_config)
 
 
 class IngestDocumentJob():
-    def __init__(self, runner: IngestRunner, document: str) -> None:
+    def __init__(self, runner: IngestRunner, document_config: DocumentConfig) -> None:
         self.runner = runner
-        self.document = document
-
-    def _load_document(self):
-        pass
+        self.document_config = document_config
+        self.document_path = os.path.join(os.path.curdir, f"source-documents/{document_config.filename}")
 
     def _parse_document(self):
-        print(f"Parsing {self.document} ..")
+        print(f"Parsing {self.document_path} ..")
         output = []
-        for node in self.runner.parser.parse(self.document).nodes:
+        for node in self.runner.parser.parse(self.document_path).nodes:
             output.append(node.text)
         return output
 
-    def _chunk_document(self, parsed: List[str]):
-        output = self.runner.chunking_function.chunk(parsed)
+    def _chunk_document(self, parsed: List[str]) -> List[Chunk]:
+        output = self.runner.chunking_function.chunk(parsed, self.document_config.id)
         return output
 
-    def _embed_document(self, chunked: List[str]):
-        pass
-
-    def _push_vectordb(self):
-        pass
+    def _push_vectordb(self, chunked: List[Chunk]):
+        self.runner.vector_db.put_many(chunked)
 
     def run(self):
-        self._load_document()
         parsed = self._parse_document()
         chunked = self._chunk_document(parsed)
-        print(f"Chunked: {chunked.__dict__()}")
-        self._embed_document(chunked)
-        self._push_vectordb()
+        self._push_vectordb(chunked) # embed and push to vectordb
     
     def notify_success(self):
         # notify api server of its progress
         pass
 
-    def notify_error(self):
-        pass
+    def notify_error(self, error):
+        print(f"An error occurred: {error}")

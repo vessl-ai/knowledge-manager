@@ -5,20 +5,22 @@ from typing import List
 import chromadb
 import urllib3
 import urllib3.util
+from chromadb import EmbeddingFunction
+
 from config import VectorDBConfig
 from models.chunk import Chunk
 
 
-def get_vector_db(config: VectorDBConfig):
+def get_vector_db(config: VectorDBConfig, embedding_function: EmbeddingFunction):
     if config.type == "chroma":
-        return ChromaVectorDB(config)
+        return ChromaVectorDB(config, embedding_function)
 
     print("Invalid VectorDB type")
 
 
 
 class BaseVectorDB:
-    def __init__(self, config: VectorDBConfig):
+    def __init__(self, config: VectorDBConfig, embedding_function: EmbeddingFunction):
         pass
 
     def put_one(self, chunk: Chunk):
@@ -36,19 +38,18 @@ class BaseVectorDB:
 
 
 class ChromaVectorDB(BaseVectorDB):
-    def __init__(self, config: VectorDBConfig):
-        super().__init__(config)
+    def __init__(self, config: VectorDBConfig, embedding_function: EmbeddingFunction):
+        super().__init__(config, embedding_function)
         connection_url = urllib3.util.parse_url(config.connection_string)
         self.chroma_client = chromadb.HttpClient(
             host=connection_url.host,
             port=connection_url.port if connection_url.port else "8000",
         )
-        # TODO: update embedding function
         self.collection = self.chroma_client.get_or_create_collection(
             name=config.collection_name,
             metadata={"hnsw:space": "cosine"}, # Use cosine similarity instead of Squared L2
-            # embedding_function="something"
-        ) 
+            embedding_function=embedding_function
+        )
 
     def put_one(self, chunk: Chunk):
         self.collection.upsert(

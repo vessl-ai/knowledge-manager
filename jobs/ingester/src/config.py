@@ -4,6 +4,8 @@ import dotenv
 import yaml
 from dotenv import dotenv_values
 
+from api_client import get_vessl_api_client
+
 env = {
     **dotenv_values(".env"),
     **dotenv_values(".env.local"),
@@ -139,10 +141,5 @@ class IngesterConfig:
         }
 
     def get_config(self):
-        if os.path.exists(os.path.join(os.path.curdir, "config/config.yaml")):
-            with open(os.path.join(os.path.curdir, "config/config.yaml"), encoding="utf-8") as f:
-                self._config = yaml.load(f, Loader=yaml.FullLoader)
-        else:
-            with open(os.path.join(os.path.curdir, "config/default-config.yaml"), encoding="utf-8") as f:
-                self._config = yaml.load(f, Loader=yaml.FullLoader)
-        return self._config
+        vessl_api_client = get_vessl_api_client()
+        return yaml.safe_load(vessl_api_client.get_config())

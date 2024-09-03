@@ -13,7 +13,7 @@ class CustomEmbeddingFunction(EmbeddingFunction):
 
         pass
 
-def get_embedding_function(config: EmbeddingModelConfig):
+def get_embedding_function(config: EmbeddingModelConfig) -> EmbeddingFunction:
     if config.is_openai():
         return OpenAIEmbeddingFunction(api_key=config.api_key, model_name=config.model_name)
     else:
