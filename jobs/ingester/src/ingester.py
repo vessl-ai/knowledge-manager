@@ -1,6 +1,6 @@
 import os
-from typing import List
 from parser import get_parser
+from typing import List
 
 from api_client import get_vessl_api_client
 from chunking import get_chunking_function
@@ -92,6 +92,7 @@ class IngestDocumentJob():
         self._load_document()
         parsed = self._parse_document()
         chunked = self._chunk_document(parsed)
+        print(f"Chunked: {chunked.__dict__()}")
         self._embed_document(chunked)
         self._push_vectordb()
     
