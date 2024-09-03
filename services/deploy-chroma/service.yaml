@@ -1,0 +1,32 @@
+name: meeting-room-agent
+message: meeting-room-agent
+image: docker.io/python:3.10
+resources:
+  cluster: vessl-aws-seoul
+  preset: cpu-medium
+import:
+  /app/:
+    git:
+      url: https://github.com/vessl-ai/knowledge-manager
+      ref: main
+      credential_name: vessl-ai
+run:
+  - command: |
+      pip install poetry
+      poetry install 
+      poetry shell
+      ./prepare-auth.sh
+      ./launch-chroma.sh
+    workdir: /app
+env:
+  CHROMA_SERVER_AUTHN_USERNAME: user
+  CHROMA_SERVER_AUTHN_PASSWORD: password
+ports:
+  - port: 8000
+service:
+  autoscaling:
+    max: 2
+    metric: cpu
+    min: 1
+    target: 50
+  expose: 8000
