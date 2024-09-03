@@ -71,8 +71,8 @@ class IngestDocumentJob():
         pass
 
     def _parse_document(self):
-        print(self.runner.parser, self.document)
-        return self.runner.parser.parse(self.document)
+        print(f"Parsing {self.document} ..")
+        return self.runner.parser.parse(self.document).nodes
 
     def _chunk_document(self):
 
@@ -87,6 +87,7 @@ class IngestDocumentJob():
     def run(self):
         self._load_document()
         parsed = self._parse_document()
+        print(vars(parsed[0]))
         self._chunk_document()
         self._embed_document()
         self._push_vectordb()
