@@ -142,4 +142,4 @@ class IngesterConfig:
 
     def get_config(self):
         vessl_api_client = get_vessl_api_client()
-        return yaml.safe_load(vessl_api_client.get_config())
+        return yaml.safe_load(vessl_api_client.get_input_config())
