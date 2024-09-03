@@ -1,5 +1,5 @@
-name: meeting-room-agent
-message: meeting-room-agent
+name: deploy-chroma
+message: deploy-chroma
 image: docker.io/python:3.10
 resources:
   cluster: vessl-aws-seoul
