@@ -1,4 +1,5 @@
 import os
+from typing import List
 from parser import get_parser
 
 from api_client import get_vessl_api_client
@@ -72,10 +73,12 @@ class IngestDocumentJob():
 
     def _parse_document(self):
         print(f"Parsing {self.document} ..")
-        return self.runner.parser.parse(self.document).nodes
+        output = []
+        for i, node in enumerate(self.runner.parser.parse(self.document).nodes):
+            output.append(node.text)
+        return output
 
-    def _chunk_document(self):
-
+    def _chunk_document(self, parsed: List[str]):
         pass
 
     def _embed_document(self):
@@ -87,8 +90,7 @@ class IngestDocumentJob():
     def run(self):
         self._load_document()
         parsed = self._parse_document()
-        print(vars(parsed[0]))
-        self._chunk_document()
+        chunked = self._chunk_document(parsed)
         self._embed_document()
         self._push_vectordb()
     
