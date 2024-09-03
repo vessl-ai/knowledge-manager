@@ -74,14 +74,15 @@ class IngestDocumentJob():
     def _parse_document(self):
         print(f"Parsing {self.document} ..")
         output = []
-        for i, node in enumerate(self.runner.parser.parse(self.document).nodes):
+        for node in self.runner.parser.parse(self.document).nodes:
             output.append(node.text)
         return output
 
     def _chunk_document(self, parsed: List[str]):
-        pass
+        output = self.runner.chunking_function.chunk(parsed)
+        return output
 
-    def _embed_document(self):
+    def _embed_document(self, chunked: List[str]):
         pass
 
     def _push_vectordb(self):
@@ -91,7 +92,7 @@ class IngestDocumentJob():
         self._load_document()
         parsed = self._parse_document()
         chunked = self._chunk_document(parsed)
-        self._embed_document()
+        self._embed_document(chunked)
         self._push_vectordb()
     
     def notify_success(self):

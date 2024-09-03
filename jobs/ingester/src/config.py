@@ -70,18 +70,18 @@ class IngestOptionsConfig:
         class FixedSizeChunkgingConfig:
             def __init__(self, config):
                 self.chunk_size: int = config["chunk_size"]
-        class NaiveSplittingChunkingConfig:
+        class CharacterSplittingChunkingConfig:
             def __init__(self, config):
-                self.delimiter: str = config["delimiter"]
-                self.max_chunk_size: int = config["max_chunk_size"]
+                self.separator: str = config["separator"]
+                self.chunk_size: int = config["chunk_size"]
                 self.chunk_overlap: int = config["chunk_overlap"]
 
         def __init__(self, config):
             self.method = config["method"]
             if self.method == "fixed_size":
                 self.fixed_size = self.FixedSizeChunkgingConfig(config["fixed_size"])
-            elif self.method == "naive_splitting":
-                self.naive_splitting = self.NaiveSplittingChunkingConfig(config["naive_splitting"])
+            elif self.method == "character_splitting":
+                self.character_splitting = self.CharacterSplittingChunkingConfig(config["character_splitting"])
             
     def __init__(self, config):
         self.parser = self.IngestOptionParserConfig(config["parser"])
@@ -97,11 +97,11 @@ class IngestOptionsConfig:
                 "fixed_size": {
                     "chunk_size": self.chunking.fixed_size.chunk_size if hasattr(self.chunking, "fixed_size") else None
                 },
-                "naive_splitting": {
-                    "delimiter": self.chunking.naive_splitting.delimiter,
-                    "max_chunk_size": self.chunking.naive_splitting.max_chunk_size,
-                    "chunk_overlap": self.chunking.naive_splitting.chunk_overlap
-                } if hasattr(self.chunking, "naive_splitting") else None
+                "character_splitting": {
+                    "separator": self.chunking.character_splitting.separator,
+                    "chunk_size": self.chunking.character_splitting.chunk_size,
+                    "chunk_overlap": self.chunking.character_splitting.chunk_overlap
+                } if hasattr(self.chunking, "character_splitting") else None
             }
         }
 

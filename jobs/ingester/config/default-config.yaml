@@ -18,12 +18,12 @@ ingest_options:
   parser:
     type: "openparse" # openparse | dify | ?
   chunking:
-    method: "naive_splitting" # fixed-size | naive_splitting | ?
+    method: "character_splitting" # character_splitting | fixed-size | ?
     fixed_size:
       chunk_size: 1000
-    naive_splitting:
-      delimiter: "\n"
-      max_chunk_size: 1000
+    character_splitting:
+      separator: "\n"
+      chunk_size: 1000
       chunk_overlap: 100
 documents:
   - id: 100000001
