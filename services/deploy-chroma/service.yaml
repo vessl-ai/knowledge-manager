@@ -1,32 +1,26 @@
-name: deploy-chroma
 message: deploy-chroma
-image: docker.io/python:3.10
+service:
+  expose: "8000"
+  autoscaling:
+    min: 1
+    max: 2
+    metric: cpu
+    target: 50
 resources:
   cluster: vessl-aws-seoul
-  preset: cpu-medium
+  preset: cpu-medium-spot
+image: python:3.11.9
 import:
   /app/:
     git:
-      url: https://github.com/vessl-ai/knowledge-manager
+      url: github.com/vessl-ai/knowledge-manager.git
       ref: main
       credential_name: vessl-ai
 run:
-  - command: |
-      pip install poetry
-      poetry install 
-      poetry shell
-      ./prepare-auth.sh
-      ./launch-chroma.sh
-    workdir: /app
-env:
-  CHROMA_SERVER_AUTHN_USERNAME: user
-  CHROMA_SERVER_AUTHN_PASSWORD: password
+  - command: "apt update && apt install apache2-utils\npip install poetry\npoetry install \npoetry run ./prepare-auth.sh\npoetry run ./launch-chroma.sh\n"
+    workdir: /app/services/deploy-chroma
 ports:
-  - port: 8000
-service:
-  autoscaling:
-    max: 2
-    metric: cpu
-    min: 1
-    target: 50
-  expose: 8000
+  - 8000
+env:
+  CHROMA_SERVER_AUTHN_PASSWORD: password
+  CHROMA_SERVER_AUTHN_USERNAME: user
