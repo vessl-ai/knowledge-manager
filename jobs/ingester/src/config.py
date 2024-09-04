@@ -1,6 +1,5 @@
 import os
 
-import dotenv
 import yaml
 from dotenv import dotenv_values
 
@@ -142,4 +141,4 @@ class IngesterConfig:
 
     def get_config(self):
         vessl_api_client = get_vessl_api_client()
-        return yaml.safe_load(vessl_api_client.get_input_config())
+        return vessl_api_client.get_input_config()

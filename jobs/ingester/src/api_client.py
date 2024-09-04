@@ -16,7 +16,7 @@ def get_vessl_api_client():
 
 class VESSLAPIClient:
     def __init__(self):
-        self.base_url = 'https://api.vessl.ai' if env.get("VESSL_API_URL") is None else env.get("VESSL_API_URL")
+        self.base_url = 'https://api-vssl-10567.dev2.vssl.ai' if env.get("VESSL_API_URL") is None else env.get("VESSL_API_URL")
         pass
 
     def _get(self, endpoint, params=None, headers=None):
@@ -42,5 +42,4 @@ class VESSLAPIClient:
 
     def get_input_config(self):
         response = self._get('hello-job-status')
-        yaml = decode_and_parse_yaml(response.get('input_yaml', None))
-        return yaml
+        return decode_and_parse_yaml(response.get('input_yaml', None))
