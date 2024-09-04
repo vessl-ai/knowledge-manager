@@ -1,12 +1,32 @@
+import os
 
+import requests
+from dotenv import dotenv_values
 
+from utils.util import decode_and_parse_yaml
+
+env = {
+    **dotenv_values(".env"),
+    **dotenv_values(".env.local"),
+    **os.environ,
+}
 
 def get_vessl_api_client():
     return VESSLAPIClient()
 
 class VESSLAPIClient:
     def __init__(self):
+        self.base_url = 'https://api-vssl-10567.dev2.vssl.ai' if env.get("VESSL_API_URL") is None else env.get("VESSL_API_URL")
         pass
+
+    def _get(self, endpoint, params=None, headers=None):
+        try:
+            response = requests.get(f"{self.base_url}/api/v1/{endpoint}", params=params, headers=headers)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            print(f"GET request failed: {e}")
+            return None
 
     def notify_start_processing(self, knowledgeID: str, jobID: str) -> None:
         # dummy
@@ -21,36 +41,6 @@ class VESSLAPIClient:
         print('Notify failed received')
 
     def get_input_config(self):
-        return (
-            """
-kind: v1/ingestor
-embedding_model: ## Can be retrieved by querying the knowledge
-  kind: v1/~~
-  type: openai # openai | chroma | huggingface | ?
-  model_name: "text-embedding-3-small"
-  model_endpoint: "" #"https://huggingface.co/bert-base-uncased/resolve/main/pytorch_model.bin" #optional
-vectordb:
-  kind: v1/~~
-  type: "chroma"
-  connection_string: "chroma://127.0.0.1:8000" ## 강제로 항상 localhost일 예정
-  collection_name: "knowledge-name-2"
-knowledge:
-  name: "knowledge-name"
-  id: 18182837191 # DB Id
-  organization_name: "organization-name"
-ingest_options:
-  parser:
-    type: "openparse" # openparse | dify | ?
-  chunking:
-    method: "character_splitting" # character_splitting | fixed-size | ?
-    fixed_size:
-      chunk_size: 1000
-    character_splitting:
-      separator: "\n"
-      chunk_size: 1000
-      chunk_overlap: 100
-documents:
-  - id: 100000001
-    filename: "한화생명 간편가입 H플러스 보장보험 무배당.pdf"
-            """
-        )
+        response = self._get('hello-job-status')
+        yaml = decode_and_parse_yaml(response.get('input_yaml', None))
+        return yaml
