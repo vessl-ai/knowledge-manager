@@ -20,7 +20,7 @@ class EmbeddingModelConfig:
     def __init__(self, config):
         self.type: str = config["type"]
         self.model_name: str = config["model_name"]
-        self.api_key: str = config["api_key"]
+        self.api_key: str = config["api_key"] if hasattr(self, "api_key") else env.get("OPENAI_API_KEY") if env.get("OPENAI_API_KEY") != None else None
         self.model_endpoint: str = config["model_endpoint"]
 
     def __dict__(self):

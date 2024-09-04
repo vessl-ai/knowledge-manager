@@ -3,12 +3,11 @@ embedding_model: ## Can be retrieved by querying the knowledge
   kind: v1/~~
   type: openai # openai | chroma | huggingface | ?
   model_name: "text-embedding-3-small"
-  api_key: "API_KEY_HERE"
   model_endpoint: "" #"https://huggingface.co/bert-base-uncased/resolve/main/pytorch_model.bin" #optional
 vectordb:
   kind: v1/~~
   type: "chroma"
-  connection_string: "chroma://localhost:8000" ## 강제로 항상 localhost일 예정
+  connection_string: "chroma://127.0.0.1:8000" ## 강제로 항상 localhost일 예정
   collection_name: "knowledge-name"
 knowledge:
   name: "knowledge-name"
