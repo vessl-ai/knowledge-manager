@@ -37,6 +37,12 @@ class IngestRunner():
                 try:
                     job.run()
                     job.notify_success()
+
+                    # print for testing
+                    if job.document_config.id == 100000001:
+                        result = self.vector_db.collection.query(query_texts=["병으로 보험금 청구가 되어 보험금 지급이 거절되었으나, 진단 이후 제9차 개정 한국표준질병·사인분 류가 적용되고 그 기준에서는 보장하는 질병에 해당된다고 하더라도 보험금을 지급하지 않습니다. "], n_results=10)
+                        print(result)
+
                 except Exception as e:
                     job.notify_error(e)
 
@@ -86,7 +92,7 @@ class IngestDocumentJob():
         parsed = self._parse_document()
         chunked = self._chunk_document(parsed)
         self._push_vectordb(chunked) # embed and push to vectordb
-    
+
     def notify_success(self):
         # notify api server of its progress
         pass

@@ -3,10 +3,9 @@
 from typing import List
 
 import chromadb
-import urllib3
-import urllib3.util
-from chromadb import EmbeddingFunction
+from chromadb import EmbeddingFunction, Settings
 
+import utils.util
 from config import VectorDBConfig
 from models.chunk import Chunk
 
@@ -40,11 +39,12 @@ class BaseVectorDB:
 class ChromaVectorDB(BaseVectorDB):
     def __init__(self, config: VectorDBConfig, embedding_function: EmbeddingFunction):
         super().__init__(config, embedding_function)
-        connection_url = urllib3.util.parse_url(config.connection_string)
+        connection_url = utils.util.parse_chroma_url(config.connection_string)
         self.chroma_client = chromadb.HttpClient(
-            host=connection_url.host,
-            port=connection_url.port if connection_url.port else "8000",
-        )
+            host=connection_url.get('host'),
+            port=connection_url.get('port') if connection_url.get('port') else "8000",
+            settings=Settings(chroma_client_auth_provider="chromadb.auth.basic_authn.BasicAuthClientProvider",
+                              chroma_client_auth_credentials=connection_url.get('auth')))
         self.collection = self.chroma_client.get_or_create_collection(
             name=config.collection_name,
             metadata={"hnsw:space": "cosine"}, # Use cosine similarity instead of Squared L2
