@@ -12,6 +12,8 @@ langchain = "^0.2.16"
 langchain-openai = "^0.1.23"
 langchain-chroma = "0.1.2"
 langchain-community = "^0.2.16"
+fastapi = "^0.113.0"
+uvicorn = "^0.30.6"
 
 
 [build-system]
