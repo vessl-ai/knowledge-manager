@@ -41,5 +41,19 @@ class VESSLAPIClient:
         print('Notify failed received')
 
     def get_input_config(self):
-        response = self._get('hello-job-status')
-        return decode_and_parse_yaml(response.get('input_yaml', None))
+        for i in range(5):
+            response = self._get(f'/organizations/{self.config.organization_name}/llm/knowledge/{self.config.knowledge_name}/ingestion/job/{self.config.knowledge_ingestion_job_number}')
+
+            if 400 <= response.status_code < 500:
+                reason = response.reason.decode("utf-8")
+                self.logger.error(
+                    f"{response.status_code} Client Error: {reason} for url: {response.url}"
+                )
+            elif 500 <= response.status_code < 600:
+                reason = response.reason.decode("utf-8")
+                self.logger.error(f"{response.status_code} Server Error: {reason} for url: {response.url}")
+            else:
+                return decode_and_parse_yaml(response.json().get('input_yaml', None))
+
+            self.logger.info(f"Retrying in 5 seconds")
+            time.sleep(5)
