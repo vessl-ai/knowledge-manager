@@ -29,8 +29,6 @@ class VESSLAPIClient:
                 "Authorization": f"token {access_token}",
             }
 
-            print(headers)
-
             response = requests.get(f"{self.base_url}/api/v1/{endpoint}", params=params, headers=headers)
             response.raise_for_status()
             return response
@@ -52,7 +50,7 @@ class VESSLAPIClient:
             return None
 
     def notify(self, message: str, status: str):
-        response = self._post(f'/organizations/{self.config.organization_name}/llm/knowledge/{self.config.knowledge_name}/ingestion/job/{self.config.knowledge_ingestion_job_number}/status', {
+        response = self._post(f'organizations/{self.config.organization_name}/llm/knowledge/{self.config.knowledge_name}/ingestion/job/{self.config.knowledge_ingestion_job_number}/status', {
             'message': message,
             'status': status
         })
@@ -61,7 +59,7 @@ class VESSLAPIClient:
 
     def get_input_config(self):
         for i in range(5):
-            response = self._get(f'/organizations/{self.config.organization_name}/llm/knowledge/{self.config.knowledge_name}/ingestion/job/{self.config.knowledge_ingestion_job_number}')
+            response = self._get(f'organizations/{self.config.organization_name}/llm/knowledge/{self.config.knowledge_name}/ingestion/job/{self.config.knowledge_ingestion_job_number}')
 
             if 400 <= response.status_code < 500:
                 reason = response.reason.decode("utf-8")
