@@ -26,8 +26,10 @@ class VESSLAPIClient:
         try:
             access_token = self.config.access_token()
             headers = {
-                "Authorization": f"jwt {access_token}",
+                "Authorization": f"token {access_token}",
             }
+
+            self.logger.info(f" access_token: {access_token}")
 
             response = requests.get(f"{self.base_url}/api/v1/{endpoint}", params=params, headers=headers)
             response.raise_for_status()
@@ -40,7 +42,7 @@ class VESSLAPIClient:
         try:
             access_token = self.config.access_token()
             headers = {
-                "Authorization": f"jwt {access_token}",
+                "Authorization": f"token {access_token}",
             }
             response = requests.post(f"{self.base_url}/api/v1/{endpoint}", json=data, headers=headers)
             response.raise_for_status()
