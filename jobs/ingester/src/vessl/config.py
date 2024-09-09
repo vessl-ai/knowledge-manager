@@ -18,7 +18,6 @@ class Config:
         self.knowledge_name = self.env.get("VESSL_KNOWLEDGE_NAME", "")
         self.knowledge_ingestion_job_number = self.env.get("VESSL_KNOWLEDGE_INGESTION_JOB_NUMBER", 1)
         self.access_token = self.access_token_getter()
-        print("Test")
 
     def get(self, key, default=None):
         return self.env.get(key, default)

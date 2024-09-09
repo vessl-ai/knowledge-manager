@@ -24,10 +24,12 @@ class VESSLAPIClient:
 
     def _get(self, endpoint, params=None, headers=None):
         try:
+            access_token = self.config.access_token()
             headers = {
-                "Authorization": f"token {self.config.access_token()}",
+                "Authorization": f"token {access_token}",
                 **headers
             }
+
             response = requests.get(f"{self.base_url}/api/v1/{endpoint}", params=params, headers=headers)
             response.raise_for_status()
             return response
@@ -37,8 +39,9 @@ class VESSLAPIClient:
 
     def _post(self, endpoint, data=None, headers=None):
         try:
+            access_token = self.config.access_token()
             headers = {
-                "Authorization": f"token {self.config.access_token()}",
+                "Authorization": f"token {access_token}",
                 **headers
             }
             response = requests.post(f"{self.base_url}/api/v1/{endpoint}", json=data, headers=headers)
@@ -55,18 +58,6 @@ class VESSLAPIClient:
         })
 
         return decode_and_parse_yaml(response.json())
-
-    def notify_start_processing(self, knowledgeID: str, jobID: str) -> None:
-        # dummy
-        print('Notify start received')
-
-
-    def notify_processing_complete(self, jobID: str) -> None:
-        print('Notify procesing received')
-
-
-    def notify_processing_failed(self, jobID: str, error: str) -> None:
-        print('Notify failed received')
 
     def get_input_config(self):
         for i in range(5):
