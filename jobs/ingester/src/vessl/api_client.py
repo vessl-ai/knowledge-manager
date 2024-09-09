@@ -1,9 +1,10 @@
 import os
-
+import time
 import requests
 from dotenv import dotenv_values
 
-from utils.util import decode_and_parse_yaml
+from utils.util import decode_and_parse_yaml, Logger
+from vessl.config import Config
 
 env = {
     **dotenv_values(".env"),
@@ -16,17 +17,44 @@ def get_vessl_api_client():
 
 class VESSLAPIClient:
     def __init__(self):
-        self.base_url = 'https://api-vssl-10567.dev2.vssl.ai' if env.get("VESSL_API_URL") is None else env.get("VESSL_API_URL")
+        self.base_url = 'https://api.vessl.ai' if env.get("VESSL_API_URL") is None else env.get("VESSL_API_URL")
+        self.config = Config()
+        self.logger = Logger()
         pass
 
     def _get(self, endpoint, params=None, headers=None):
         try:
+            headers = {
+                "Authorization": f"token {self.config.access_token()}",
+                **headers
+            }
             response = requests.get(f"{self.base_url}/api/v1/{endpoint}", params=params, headers=headers)
             response.raise_for_status()
-            return response.json()
+            return response
         except requests.exceptions.RequestException as e:
             print(f"GET request failed: {e}")
             return None
+
+    def _post(self, endpoint, data=None, headers=None):
+        try:
+            headers = {
+                "Authorization": f"token {self.config.access_token()}",
+                **headers
+            }
+            response = requests.post(f"{self.base_url}/api/v1/{endpoint}", json=data, headers=headers)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            print(f"POST request failed: {e}")
+            return None
+
+    def notify(self, message: str, status: str):
+        response = self._post(f'/organizations/{self.config.organization_name}/llm/knowledge/{self.config.knowledge_name}/ingestion/job/{self.config.knowledge_ingestion_job_number}/status', {
+            'message': message,
+            'status': status
+        })
+
+        return decode_and_parse_yaml(response.json())
 
     def notify_start_processing(self, knowledgeID: str, jobID: str) -> None:
         # dummy

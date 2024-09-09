@@ -2,6 +2,25 @@ import base64
 
 import urllib3
 import yaml
+import logging
+
+class Logger:
+    def __init__(self, name='VESSLAPIClient', level=logging.INFO):
+        self.logger = logging.getLogger(name)
+        self.logger.setLevel(level)
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        self.logger.addHandler(handler)
+
+    def info(self, message):
+        self.logger.info(message)
+
+    def warning(self, message):
+        self.logger.warning(message)
+
+    def error(self, message):
+        self.logger.error(message)
 
 def decode_and_parse_yaml(encoded_str):
     # Decode the base64 encoded string

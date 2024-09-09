@@ -1,9 +1,8 @@
 import os
 
-import yaml
 from dotenv import dotenv_values
 
-from api_client import get_vessl_api_client
+from vessl.api_client import get_vessl_api_client
 
 env = {
     **dotenv_values(".env"),

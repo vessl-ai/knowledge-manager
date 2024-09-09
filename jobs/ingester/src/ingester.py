@@ -4,7 +4,7 @@ from typing import List
 from models.chunk import Chunk
 from parser import get_parser
 
-from api_client import get_vessl_api_client
+from vessl.api_client import get_vessl_api_client
 from chunking import get_chunking_function
 from config import IngesterConfig, DocumentConfig
 from embedding_model import get_embedding_function
@@ -22,7 +22,6 @@ class IngestRunner():
         self.vector_db = get_vector_db(config.vector_db, self.embedding_function)
 
     def run(self):
-        # Todo; implement
         self.notify_start()
 
         try:
@@ -38,11 +37,6 @@ class IngestRunner():
                     job.run()
                     job.notify_success()
 
-                    # print for testing
-                    if job.document_config.id == 100000001:
-                        result = self.vector_db.collection.query(query_texts=["병으로 보험금 청구가 되어 보험금 지급이 거절되었으나, 진단 이후 제9차 개정 한국표준질병·사인분 류가 적용되고 그 기준에서는 보장하는 질병에 해당된다고 하더라도 보험금을 지급하지 않습니다. "], n_results=10)
-                        print(result)
-
                 except Exception as e:
                     job.notify_error(e)
 
@@ -56,13 +50,15 @@ class IngestRunner():
         return os.path.join(os.path.curdir, f"source-documents/{document.filename}")
 
     def notify_start(self):
-        pass
+        self.api_client.notify(f"{self.api_client.config.organization_name}/{self.api_client.config.knowledge_name}/{self.api_client.config.knowledge_ingestion_job_number} Ingestion Job started", "in_progress")
 
     def notify_end(self):
-        pass
+        self.api_client.notify(f"{self.api_client.config.organization_name}/{self.api_client.config.knowledge_name}/{self.api_client.config.knowledge_ingestion_job_number} Ingestion Job completed", "completed")
 
     def notify_error(self):
-        pass
+        self.api_client.notify(
+            f"{self.api_client.config.organization_name}/{self.api_client.config.knowledge_name}/{self.api_client.config.knowledge_ingestion_job_number} Ingestion Job failed",
+            "failed")
 
     def spawn_document_process_job(self, document_config):
         return IngestDocumentJob(self, document_config)
@@ -94,8 +90,7 @@ class IngestDocumentJob():
         self._push_vectordb(chunked) # embed and push to vectordb
 
     def notify_success(self):
-        # notify api server of its progress
-        pass
+        print(f"{self.document_config.filename} Document processed successfully")
 
     def notify_error(self, error):
         print(f"An error occurred: {error}")
