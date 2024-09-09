@@ -22,7 +22,7 @@ class Config:
     def get(self, key, default=None):
         return self.env.get(key, default)
 
-    def access_token_getter():
+    def access_token_getter(self):
         def get_token():
             with token_once:
                 if not os.path.exists(access_token_file):
