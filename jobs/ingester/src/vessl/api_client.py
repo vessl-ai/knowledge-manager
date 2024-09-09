@@ -22,13 +22,14 @@ class VESSLAPIClient:
         self.logger = Logger()
         pass
 
-    def _get(self, endpoint, params=None, headers=None):
+    def _get(self, endpoint, params=None):
         try:
             access_token = self.config.access_token()
             headers = {
                 "Authorization": f"token {access_token}",
-                **headers
             }
+
+            print(headers)
 
             response = requests.get(f"{self.base_url}/api/v1/{endpoint}", params=params, headers=headers)
             response.raise_for_status()
@@ -37,12 +38,11 @@ class VESSLAPIClient:
             print(f"GET request failed: {e}")
             return None
 
-    def _post(self, endpoint, data=None, headers=None):
+    def _post(self, endpoint, data=None):
         try:
             access_token = self.config.access_token()
             headers = {
                 "Authorization": f"token {access_token}",
-                **headers
             }
             response = requests.post(f"{self.base_url}/api/v1/{endpoint}", json=data, headers=headers)
             response.raise_for_status()
