@@ -57,7 +57,7 @@ class VESSLAPIClient:
             'status': status
         })
 
-        return decode_and_parse_yaml(response.json())
+        return response.json()
 
     def get_input_config(self):
         for i in range(5):
