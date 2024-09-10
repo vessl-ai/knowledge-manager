@@ -70,7 +70,7 @@ class VESSLAPIClient:
             'status': status
         })
 
-        return response.json()
+        return response
 
     def get_input_config(self):
         for i in range(5):
