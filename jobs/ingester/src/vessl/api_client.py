@@ -51,8 +51,21 @@ class VESSLAPIClient:
             print(f"POST request failed: {e}")
             return None
 
+    def _patch(self, endpoint, data=None):
+        try:
+            access_token = self.config.access_token()
+            headers = {
+                "Authorization": f"token {access_token}",
+            }
+            response = requests.patch(f"{self.base_url}/api/v1/{endpoint}", json=data, headers=headers)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            print(f"PATCH request failed: {e}")
+            return None
+
     def notify(self, message: str, status: str):
-        response = self._post(f'llm/knowledge/{self.config.knowledge_name}/ingestion/job/{self.config.knowledge_ingestion_job_number}/status', {
+        response = self._patch(f'llm/knowledge/{self.config.knowledge_name}/ingestion/job/{self.config.knowledge_ingestion_job_number}/status', {
             'message': message,
             'status': status
         })
