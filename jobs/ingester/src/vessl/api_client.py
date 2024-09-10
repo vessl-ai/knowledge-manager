@@ -52,7 +52,7 @@ class VESSLAPIClient:
             return None
 
     def notify(self, message: str, status: str):
-        response = self._post(f'organizations/{self.config.organization_name}/llm/knowledge/{self.config.knowledge_name}/ingestion/job/{self.config.knowledge_ingestion_job_number}/status', {
+        response = self._post(f'llm/knowledge/{self.config.knowledge_name}/ingestion/job/{self.config.knowledge_ingestion_job_number}/status', {
             'message': message,
             'status': status
         })
