@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 import uvicorn
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
 
 from langchain_community.embeddings import OpenAIEmbeddings
 from langchain_chroma import Chroma
@@ -10,7 +11,29 @@ from langchain_chroma import Chroma
 import chromadb
 from chromadb.config import Settings
 
-app = FastAPI()
+from vessl.api_client import get_vessl_api_client
+
+api_client = get_vessl_api_client()
+
+def notify_start():
+    api_client.notify(f"{api_client.config.organization_name}/{api_client.config.knowledge_name}/{api_client.config.knowledge_retriever_job_number} Retriever Job started", "in_progress")
+def notify_end():
+    api_client.notify(f"{api_client.config.organization_name}/{api_client.config.knowledge_name}/{api_client.config.knowledge_retriever_job_number} Retriever Job completed", "completed")
+def notify_error():
+    api_client.notify(
+        f"{api_client.config.organization_name}/{api_client.config.knowledge_name}/{api_client.config.knowledge_retriever_job_number} Retriever Job failed",
+        "failed")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    try:
+        notify_start()
+        yield
+        notify_end()
+    except:
+        notify_error()
+
+app = FastAPI(lifespan=lifespan)
 
 class VectorDBClient(BaseModel):
     type: str
@@ -33,7 +56,6 @@ class Query(BaseModel):
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
-
 
 @app.post("/query")
 async def retrieve(query: Query):
