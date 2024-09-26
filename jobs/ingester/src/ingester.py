@@ -46,19 +46,17 @@ class IngestRunner():
         except:
             self.notify_error()
 
-    def load_document(self, document: DocumentConfig):
-        return os.path.join(os.path.curdir, f"source-documents/{document.filename}")
-
     def notify_start(self):
-        self.api_client.notify(f"{self.api_client.config.organization_name}/{self.api_client.config.knowledge_name}/{self.api_client.config.knowledge_ingestion_job_number} Ingestion Job started", "in_progress")
+        # self.api_client.notify(f"{self.api_client.config.organization_name}/{self.api_client.config.knowledge_name}/{self.api_client.config.knowledge_ingestion_job_number} Ingestion Job started", "in_progress")
+        print("Ingestion Job started")
 
     def notify_end(self):
-        self.api_client.notify(f"{self.api_client.config.organization_name}/{self.api_client.config.knowledge_name}/{self.api_client.config.knowledge_ingestion_job_number} Ingestion Job completed", "completed")
+        # self.api_client.notify(f"{self.api_client.config.organization_name}/{self.api_client.config.knowledge_name}/{self.api_client.config.knowledge_ingestion_job_number} Ingestion Job completed", "completed")
+        print("Ingestion Job completed")
 
     def notify_error(self):
-        self.api_client.notify(
-            f"{self.api_client.config.organization_name}/{self.api_client.config.knowledge_name}/{self.api_client.config.knowledge_ingestion_job_number} Ingestion Job failed",
-            "failed")
+        # self.api_client.notify(f"{self.api_client.config.organization_name}/{self.api_client.config.knowledge_name}/{self.api_client.config.knowledge_ingestion_job_number} Ingestion Job failed", "failed")
+        print("Ingestion Job failed")
 
     def spawn_document_process_job(self, document_config):
         return IngestDocumentJob(self, document_config)
@@ -68,7 +66,7 @@ class IngestDocumentJob():
     def __init__(self, runner: IngestRunner, document_config: DocumentConfig) -> None:
         self.runner = runner
         self.document_config = document_config
-        self.document_path = os.path.join(os.path.curdir, f"source-documents/{document_config.filename}")
+        self.document_path = os.path.join(os.path.abspath(os.path.curdir), f"../source-documents/{document_config.filename}")
 
     def _parse_document(self):
         print(f"Parsing {self.document_path} ..")
