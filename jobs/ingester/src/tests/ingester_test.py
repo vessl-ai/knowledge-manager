@@ -1,5 +1,3 @@
-import chromadb
-
 from config import get_config, VectorDBConfig
 from ingester import IngestRunner
 
@@ -8,11 +6,11 @@ def test_ingester():
     config = get_config()
     runner = IngestRunner(config)
 
-    runner.run()
+    # runner.run()
 
-    chroma_client = chromadb.HttpClient(host="localhost", port=8000)
+    chroma_client = runner.vector_db.chroma_client
 
-    vectordb_config = VectorDBConfig(config.get_config()["vectordb"])
+    vectordb_config = config.vector_db
     collection = chroma_client.get_or_create_collection(
         name=vectordb_config.collection_name,
         embedding_function=runner.embedding_function

@@ -73,19 +73,43 @@ class VESSLAPIClient:
         return response
 
     def get_input_config(self):
-        for i in range(5):
-            response = self._get(f'organizations/{self.config.organization_name}/llm/knowledge/{self.config.knowledge_name}/ingestion/job/{self.config.knowledge_ingestion_job_number}')
 
-            if 400 <= response.status_code < 500:
-                reason = response.reason.decode("utf-8")
-                self.logger.error(
-                    f"{response.status_code} Client Error: {reason} for url: {response.url}"
-                )
-            elif 500 <= response.status_code < 600:
-                reason = response.reason.decode("utf-8")
-                self.logger.error(f"{response.status_code} Server Error: {reason} for url: {response.url}")
-            else:
-                return decode_and_parse_yaml(response.json().get('input_yaml', None))
+        # get api key by prompt
+        api_key = input("Enter your openai api key: ")
 
-            self.logger.info(f"Retrying in 5 seconds")
-            time.sleep(5)
+        connection_string = input("Enter your vectordb connection string  (e.g. chroma://user:password@http://localhost:8000)")
+
+        return (
+            f"""
+kind: v1/ingestor
+embedding_model: ## Can be retrieved by querying the knowledge
+  kind: v1/~~
+  type: openai # openai | chroma | huggingface | ?
+  model_name: "text-embedding-3-large"
+  model_endpoint: "" 
+  api_key: "{api_key}"
+vectordb:
+  kind: v1/~~
+  type: "chroma"
+  connection_string: "{connection_string}" ## 강제로 항상 localhost일 예정
+  collection_name: "test-seokju"
+knowledge:
+  name: "knowledge-name"
+  id: 18182837191 # DB Id
+  organization_name: "organization-name"
+ingest_options:
+  parser:
+    type: "openparse" # openparse | dify | ?
+  chunking:
+    method: "character_splitting" # character_splitting | fixed-size | ?
+    fixed_size:
+      chunk_size: 1000
+    character_splitting:
+      separator: "\n"
+      chunk_size: 1000
+      chunk_overlap: 100
+documents:
+  - id: 100000001
+    filename: "한화생명 간편가입 H플러스 보장보험 무배당.pdf"
+            """
+        )

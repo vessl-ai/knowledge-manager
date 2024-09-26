@@ -1,5 +1,6 @@
 import os
 
+import yaml
 from dotenv import dotenv_values
 
 from vessl.api_client import get_vessl_api_client
@@ -18,7 +19,7 @@ class EmbeddingModelConfig:
     def __init__(self, config):
         self.type: str = config["type"]
         self.model_name: str = config["model_name"]
-        self.api_key: str = config["api_key"] if hasattr(self, "api_key") else env.get("OPENAI_API_KEY") if env.get("OPENAI_API_KEY") != None else None
+        self.api_key: str = config["api_key"]
         self.model_endpoint: str = config["model_endpoint"]
 
     def __dict__(self):
@@ -140,4 +141,4 @@ class IngesterConfig:
 
     def get_config(self):
         vessl_api_client = get_vessl_api_client()
-        return vessl_api_client.get_input_config()
+        return yaml.safe_load(vessl_api_client.get_input_config())
